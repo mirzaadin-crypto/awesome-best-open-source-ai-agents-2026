@@ -1,7 +1,8 @@
 # =====================================================================
 #  ULTRON Installer  (Brahma AI Evo -> ULTRON)
 #  Default install path: N:\MY AGENTS\ULTRON
-#  Run:  powershell -ExecutionPolicy Bypass -File .\INSTALL_ULTRON.ps1
+#  One-line run (paste in PowerShell):
+#    powershell -NoProfile -ExecutionPolicy Bypass -Command "iwr https://raw.githubusercontent.com/mirzaadin-crypto/awesome-best-open-source-ai-agents-2026/cline/t22a7p34/install-ultron/INSTALL_ULTRON.ps1 -OutFile $env:TEMP\i.ps1; & $env:TEMP\i.ps1"
 # =====================================================================
 param(
     [string]$Dest = "N:\MY AGENTS\ULTRON",
@@ -9,53 +10,69 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-Write-Host "== ULTRON installer ==" -ForegroundColor Cyan
-Write-Host "Target: $Dest" -ForegroundColor Yellow
+function Log($m){ Write-Host $m -ForegroundColor Cyan }
+
+Write-Host "==============================================" -ForegroundColor Yellow
+Write-Host "  ULTRON INSTALLER  ->  $Dest" -ForegroundColor Yellow
+Write-Host "==============================================" -ForegroundColor Yellow
 
 # 1. Destination
 if (-not (Test-Path $Dest)) { New-Item -ItemType Directory -Force -Path $Dest | Out-Null }
 Set-Location $Dest
 
-# 2. Get the app (clone only if this script is not already inside the app)
+# 2. Get the app
 if (-not (Test-Path (Join-Path $Dest "main.py"))) {
-    Write-Host "Cloning source..." -ForegroundColor Cyan
-    if (Test-Path (Join-Path $Dest ".git")) { git -C $Dest pull } else { git clone $Repo $Dest }
-}
+    Log "Downloading ULTRON source..."
+    if (Test-Path (Join-Path $Dest ".git")) { git -C $Dest pull }
+    else { git clone $Repo $Dest }
+} else { Log "Source already present, updating..."; git -C $Dest pull 2>$null }
 
-# 3. Python
-$Python = if (Get-Command py -ErrorAction SilentlyContinue) { "py" }
-          elseif (Get-Command python -ErrorAction SilentlyContinue) { "python" }
-          else { throw "Python 3.11/3.12 not found. Install from python.org first." }
-
-# 4. Virtual environment + deps
-if (-not (Test-Path "$Dest\.venv\Scripts\python.exe")) {
-    Write-Host "Creating venv..." -ForegroundColor Cyan
-    & $Python -m venv .venv
+# 3. Python (auto-install if missing)
+$Python = $null
+if (Get-Command py -ErrorAction SilentlyContinue) { $Python = "py" }
+elseif (Get-Command python -ErrorAction SilentlyContinue) { $Python = "python" }
+if (-not $Python) {
+    Log "Python not found. Installing Python 3.11.8 (silent)..."
+    $pi = "$env:TEMP\python_installer.exe"
+    Invoke-WebRequest "https://www.python.org/ftp/python/3.11.8/python-3.11.8-amd64.exe" -OutFile $pi
+    Start-Process $pi -ArgumentList "/quiet InstallAllUsers=1 PrependPath=1 Include_test=0" -Wait
+    $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+    $Python = "python"
 }
+Log "Python: $Python"
+
+# 4. venv + deps
 $VP = "$Dest\.venv\Scripts\python.exe"
+if (-not (Test-Path $VP)) { Log "Creating virtual environment..."; & $Python -m venv .venv }
+Log "Installing dependencies (a few minutes)..."
 & $VP -m pip install --upgrade pip setuptools wheel
 & $VP -m pip install -r requirements.txt
+Log "Installing browser engine..."
 & $VP -m playwright install
 
-# 5. Seed ULTRON identity + MO golden rules + memory
+# 5. Seed identity + MO golden rules + memory
 $DataDir = Join-Path $env:LOCALAPPDATA "BrahmaAI"
 New-Item -ItemType Directory -Force -Path "$DataDir\config" | Out-Null
 New-Item -ItemType Directory -Force -Path "$DataDir\memory" | Out-Null
-if (Test-Path "$Dest\mo_golden_rules.json") {
-    Copy-Item "$Dest\mo_golden_rules.json" "$DataDir\config\learned_rules.json" -Force
-}
-if (-not (Test-Path "$DataDir\memory\MEMORY.md")) {
-    "date | agent | change | why | next" | Out-File "$DataDir\memory\MEMORY.md" -Encoding utf8
-}
+if (Test-Path "$Dest\mo_golden_rules.json") { Copy-Item "$Dest\mo_golden_rules.json" "$DataDir\config\learned_rules.json" -Force }
+if (-not (Test-Path "$DataDir\memory\MEMORY.md")) { "date | agent | change | why | next" | Out-File "$DataDir\memory\MEMORY.md" -Encoding utf8 }
 
-# 6. Regression gate (must pass before it counts as installed)
-Write-Host "Running regression gate (compile check)..." -ForegroundColor Cyan
+# 6. Regression gate
+Log "Running regression gate..."
 & $VP -m compileall -q "$Dest"
-if ($LASTEXITCODE -ne 0) { throw "Regression gate FAILED. ULTRON not installed." }
-Write-Host "Gate passed." -ForegroundColor Green
+if ($LASTEXITCODE -ne 0) { throw "REGRESSION GATE FAILED. ULTRON not installed." }
+
+# 7. Desktop shortcut + launch
+$lnk = Join-Path ([Environment]::GetFolderPath("Desktop")) "ULTRON.lnk"
+$ws = New-Object -ComObject WScript.Shell
+$s = $ws.CreateShortcut($lnk)
+$s.TargetPath = $VP; $s.Arguments = "main.py --startup"; $s.WorkingDirectory = $Dest; $s.Save()
 
 Write-Host ""
-Write-Host "ULTRON installed at $Dest" -ForegroundColor Green
-Write-Host "Launch:  $Dest\start_ultron.bat" -ForegroundColor Yellow
-Write-Host "Memory:  $DataDir\memory\long_term.json" -ForegroundColor Yellow
-Write-Host "Rules:   $DataDir\config\learned_rules.json" -ForegroundColor Yellow
+Write-Host "  ULTRON INSTALLED  ->  $Dest" -ForegroundColor Green
+Write-Host "  Desktop shortcut created: ULTRON" -ForegroundColor Green
+Write-Host "  Launching now..." -ForegroundColor Yellow
+Start-Process $VP -ArgumentList "main.py --startup" -WorkingDirectory $Dest
+Write-Host "  Memory : $DataDir\memory\long_term.json"
+Write-Host "  Rules  : $DataDir\config\learned_rules.json"
+Write-Host "  (First run: add your Gemini API key in Settings)" -ForegroundColor Yellow
