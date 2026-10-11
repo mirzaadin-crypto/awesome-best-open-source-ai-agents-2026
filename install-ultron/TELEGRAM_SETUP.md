@@ -1,34 +1,36 @@
-# ULTRON Telegram Bridge — setup
+# Telegram Bridge — one bot per agent
 
-Control ULTRON from `t.me/Klinac_bot` and log everything to memory.
+Each agent has its **own** bot and its **own** token. Nothing is shared.
 
-## 1. Store the token SAFELY (never in code, never in git)
-On your PC, in a terminal **in the ULTRON folder**:
+| Agent | Token env var | Task name |
+|---|---|---|
+| ULTRON | `ULTRON_TELEGRAM_TOKEN` | ULTRON Telegram Bridge |
+| VISKO | `VISKO_TELEGRAM_TOKEN` | VISKO Telegram Bridge |
+
+## Set an agent's token (per agent, never shared)
 ```powershell
-[Environment]::SetEnvironmentVariable("TELEGRAM_BOT_TOKEN","<your-token>","User")
-```
-Or create `%LOCALAPPDATA%\BrahmaAI\config\telegram.json`:
-```json
-{ "token": "<your-token>" }
+[Environment]::SetEnvironmentVariable("VISKO_TELEGRAM_TOKEN","<visko-token>","User")
+[Environment]::SetEnvironmentVariable("ULTRON_TELEGRAM_TOKEN","<ultron-token>","User")
 ```
 
-## 2. Run the bridge
+## Run one bridge manually
+```powershell
+python install-ultron\agent_telegram_bridge.py --agent VISKO
+python install-ultron\agent_telegram_bridge.py --agent ULTRON
 ```
-python install-ultron\ultron_telegram_bridge.py
+
+## Auto-start an agent's bot at boot
+```powershell
+powershell -ExecutionPolicy Bypass -File .\install-ultron\install_boot_autostart.ps1 -Agent VISKO
 ```
-(or double-click `install-ultron\start_telegram_bridge.bat`)
 
-## 3. Talk to your bot
-Open `t.me/Klinac_bot` → send `/help`
+## Remove a token / bot entirely
+```powershell
+Stop-ScheduledTask -TaskName "ULTRON Telegram Bridge" -ErrorAction SilentlyContinue
+Unregister-ScheduledTask -TaskName "ULTRON Telegram Bridge" -Confirm:$false -ErrorAction SilentlyContinue
+[Environment]::SetEnvironmentVariable("TELEGRAM_BOT_TOKEN",$null,"User")
+[Environment]::SetEnvironmentVariable("ULTRON_TELEGRAM_TOKEN",$null,"User")
+```
 
-| Command | Does |
-|---|---|
-| `/status` | ULTRON state (memory + rules count) |
-| `/rules` | list learned rules |
-| `/remember <text>` | add a golden rule |
-| `/note <text>` | append to shared memory |
-| `/help` | show commands |
-
-## 🔐 Security
-- This token was shared in chat. **Rotate it** after setup: @BotFather → `/revoke`.
-- The token lives in an env var / local config — **never committed**.
+## Security
+Tokens live in **env vars / local config only** — never in code, never committed.
