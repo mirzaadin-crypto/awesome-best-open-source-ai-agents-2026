@@ -20,20 +20,28 @@ Write-Host "==============================================" -ForegroundColor Yel
 if (-not (Test-Path $Dest)) { New-Item -ItemType Directory -Force -Path $Dest | Out-Null }
 Set-Location $Dest
 
-# 2. Get the app (git if available, else ZIP — no prerequisites)
+# 2. Get the app — clone to TEMP then copy in (works even if $Dest already has files)
 if (-not (Test-Path (Join-Path $Dest "main.py"))) {
+    $tmp = Join-Path $env:TEMP "ultron_src"
+    Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue
     if (Get-Command git -ErrorAction SilentlyContinue) {
         Log "Downloading ULTRON source (git)..."
-        if (Test-Path (Join-Path $Dest ".git")) { git -C $Dest pull } else { git clone $Repo $Dest }
+        git clone $Repo $tmp
     } else {
         Log "git not found - downloading ZIP..."
-        $zip = "$env:TEMP\brahma.zip"
+        $zip = Join-Path $env:TEMP "brahma.zip"
         Invoke-WebRequest "https://github.com/mirzaadin-crypto/Brahma-Ai-Evo/archive/refs/heads/main.zip" -OutFile $zip -UseBasicParsing
-        Expand-Archive $zip -DestinationPath $Dest -Force
-        $inner = Get-ChildItem $Dest -Directory | Where-Object { $_.Name -like 'Brahma-Ai-Evo*' } | Select-Object -First 1
-        if ($inner) { Get-ChildItem $inner.FullName -Force | Move-Item -Destination $Dest -Force; Remove-Item $inner.FullName -Recurse -Force }
+        Expand-Archive $zip -DestinationPath $tmp -Force
+        $inner = Get-ChildItem $tmp -Directory | Select-Object -First 1
+        if ($inner) { Get-ChildItem $inner.FullName -Force | Move-Item -Destination $tmp -Force; Remove-Item $inner.FullName -Recurse -Force }
     }
-} else { Log "Source already present, updating..."; git -C $Dest pull 2>$null }
+    Log "Copying source into $Dest ..."
+    Get-ChildItem $tmp -Force | Copy-Item -Destination $Dest -Recurse -Force
+    Remove-Item $tmp -Recurse -Force -ErrorAction SilentlyContinue
+} else {
+    Log "Source already present."
+    if (Test-Path (Join-Path $Dest ".git")) { git -C $Dest pull 2>$null }
+}
 
 # 3. Python (auto-install if missing)
 $Python = $null
