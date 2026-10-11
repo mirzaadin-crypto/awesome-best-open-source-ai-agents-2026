@@ -1,0 +1,13 @@
+MO, ULTRON is ready. Listen to this once.
+
+What I did. I cloned Brahma AI Evo and installed it as ULTRON. It already has two things you thought you were missing. One, long term memory. Two, a learned rules engine. So your memory problem is not a missing tool. It is a missing habit and a missing gate.
+
+The install. On your Windows PC, open PowerShell in the folder with the installer, and run. powershell dash Execution Policy Bypass dash File dot backslash INSTALL ULTRON dot p s one. It installs by default to N backslash MY AGENTS backslash ULTRON. Then launch with start ultron dot bat.
+
+What I added. Your golden rules are now seeded into ULTRON. Read before you act. Memory after every task. Never delete another agent's work. No change lands without passing the regression gate. No force push. And if something is ambiguous, stop and ask.
+
+Security. You pasted a live GitHub token in plain text. Revoke it now. I did not use it, and I did not store it. I never need it.
+
+Your turn. Two things. One, revoke that token. Two, answer my earlier five questions so I can freeze the rules to version one and wire the gate into all twenty nine domains.
+
+End of note.

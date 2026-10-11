@@ -1,0 +1,38 @@
+[
+    {
+        "id": "mo-golden-001",
+        "rule": "Always read AGENTS.md and MEMORY.md before acting. If it is not written down, it does not exist.",
+        "category": "core",
+        "origin": "mo_golden_rules"
+    },
+    {
+        "id": "mo-golden-002",
+        "rule": "After every task, append one memory line: date | agent | change | why | next. No entry means the task did not happen.",
+        "category": "memory",
+        "origin": "mo_golden_rules"
+    },
+    {
+        "id": "mo-golden-003",
+        "rule": "Never delete or rewrite another agent's work. Append and extend. Removal requires an explicit DECISION line in memory.",
+        "category": "safety",
+        "origin": "mo_golden_rules"
+    },
+    {
+        "id": "mo-golden-004",
+        "rule": "No change lands without passing the regression gate (compile + tests). Failing checks never merge or deploy. No exceptions.",
+        "category": "regression",
+        "origin": "mo_golden_rules"
+    },
+    {
+        "id": "mo-golden-005",
+        "rule": "Never force-push, rewrite history, or commit directly to the default branch.",
+        "category": "safety",
+        "origin": "mo_golden_rules"
+    },
+    {
+        "id": "mo-golden-006",
+        "rule": "If a task is ambiguous, stop and ask. Write the question under OPEN: in memory instead of guessing.",
+        "category": "process",
+        "origin": "mo_golden_rules"
+    }
+]
