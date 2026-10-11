@@ -89,7 +89,10 @@ if ($LASTEXITCODE -ne 0) { throw "REGRESSION GATE FAILED. ULTRON not installed."
 $lnk = Join-Path ([Environment]::GetFolderPath("Desktop")) "ULTRON.lnk"
 $ws = New-Object -ComObject WScript.Shell
 $s = $ws.CreateShortcut($lnk)
-$s.TargetPath = $VP; $s.Arguments = "main.py --startup"; $s.WorkingDirectory = $Dest; $s.Save()
+try { Invoke-WebRequest "$Base/ultron.ico" -OutFile "$Dest\ultron.ico" -UseBasicParsing } catch {}
+$s.TargetPath = $VP; $s.Arguments = "main.py --startup"; $s.WorkingDirectory = $Dest
+if (Test-Path "$Dest\ultron.ico") { $s.IconLocation = "$Dest\ultron.ico,0" }
+$s.Description = "OSmOS"; $s.Save()
 
 # 7b. If a bot token is configured, enable boot auto-start now
 if ([Environment]::GetEnvironmentVariable("ULTRON_TELEGRAM_TOKEN","User")) {
