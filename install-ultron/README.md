@@ -27,3 +27,9 @@ Then launch: `N:\MY AGENTS\ULTRON\start_ultron.bat`
 ## License note
 Brahma AI Evo is *source-available, personal use only, no redistribution*.
 So its source is **not committed here** — only these installer files. ULTRON is gitignored.
+
+## Auto-start the Telegram bot at boot
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\install-ultron\install_boot_autostart.ps1
+```
+Creates scheduled task "ULTRON Telegram Bridge" (at logon, auto-restart, no window).
