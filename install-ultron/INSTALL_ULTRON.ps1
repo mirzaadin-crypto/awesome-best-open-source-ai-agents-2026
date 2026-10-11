@@ -20,11 +20,19 @@ Write-Host "==============================================" -ForegroundColor Yel
 if (-not (Test-Path $Dest)) { New-Item -ItemType Directory -Force -Path $Dest | Out-Null }
 Set-Location $Dest
 
-# 2. Get the app
+# 2. Get the app (git if available, else ZIP — no prerequisites)
 if (-not (Test-Path (Join-Path $Dest "main.py"))) {
-    Log "Downloading ULTRON source..."
-    if (Test-Path (Join-Path $Dest ".git")) { git -C $Dest pull }
-    else { git clone $Repo $Dest }
+    if (Get-Command git -ErrorAction SilentlyContinue) {
+        Log "Downloading ULTRON source (git)..."
+        if (Test-Path (Join-Path $Dest ".git")) { git -C $Dest pull } else { git clone $Repo $Dest }
+    } else {
+        Log "git not found - downloading ZIP..."
+        $zip = "$env:TEMP\brahma.zip"
+        Invoke-WebRequest "https://github.com/mirzaadin-crypto/Brahma-Ai-Evo/archive/refs/heads/main.zip" -OutFile $zip -UseBasicParsing
+        Expand-Archive $zip -DestinationPath $Dest -Force
+        $inner = Get-ChildItem $Dest -Directory | Where-Object { $_.Name -like 'Brahma-Ai-Evo*' } | Select-Object -First 1
+        if ($inner) { Get-ChildItem $inner.FullName -Force | Move-Item -Destination $Dest -Force; Remove-Item $inner.FullName -Recurse -Force }
+    }
 } else { Log "Source already present, updating..."; git -C $Dest pull 2>$null }
 
 # 3. Python (auto-install if missing)
