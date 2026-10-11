@@ -1,5 +1,11 @@
 [
     {
+        "id": "mo-golden-000",
+        "rule": "NEVER ASSUME. ACT ONLY IN FULL CERTAINTY. Verify across two or more independent sources before acting. If not verified, stop and ask. Assume makes an ass of you and me.",
+        "category": "core",
+        "origin": "mo_golden_rules"
+    },
+    {
         "id": "mo-golden-001",
         "rule": "Always read AGENTS.md and MEMORY.md before acting. If it is not written down, it does not exist.",
         "category": "core",

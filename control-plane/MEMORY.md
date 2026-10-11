@@ -7,3 +7,4 @@ Rules: append only · never edit past lines · one line per task · `DECISION:` 
 ---
 
 2026-10-11 | orchestrator | meta | Created control plane: AGENTS.md v1 + DOMAINS.md + regression gate | MO has 11-mo regression: no memory, no uniform behavior | Freeze after MO names the 29 domains
+2026-10-11 | orchestrator | meta | Encoded RULE #1: never assume, act only in full certainty, verify across sources | MO directive | Apply to every agent

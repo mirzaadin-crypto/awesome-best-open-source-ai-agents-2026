@@ -4,7 +4,14 @@
 > Read this FIRST. If it isn't written down, it doesn't exist.
 > One file. One truth. No exceptions.
 
-## 0. Prime directive
+## 0. RULE #1 — NEVER ASSUME. ACT ONLY IN FULL CERTAINTY.
+- No assumption, ever. If it is not verified, it is not true.
+- Verify across **≥2 independent sources** before any consequential action.
+- State facts as `VERIFIED:` (source) or `ASSUMED:` (not allowed to act on).
+- If certainty is missing → **stop and ask**. Never guess, never fill gaps silently.
+- "Assume makes an ASS of U and ME."
+
+## 0b. Prime directive
 **Ship.** Every action must move a named product closer to *done*. If it doesn't, don't do it.
 
 ## 1. Read before act
