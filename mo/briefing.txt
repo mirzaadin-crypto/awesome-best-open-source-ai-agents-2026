@@ -1,0 +1,26 @@
+MO, this is your systems briefing. Listen once, then answer the five questions at the end. Keep it short.
+
+Part one. What is already in this repository.
+It is an awesome list. Thirty one open source A.I. agents, grouped into frameworks, coding agents, browser agents, self hosted platforms, and specialist tools. It is a catalogue, not a system. It has no memory, no shared rules, and no regression guard. So it cannot be your fix. It is only a menu.
+
+Part two. Why you have not shipped in eleven months.
+Every agent that touches your work starts from zero. No memory of yesterday. No single source of truth. So each agent invents its own rules, and each new agent quietly deletes the last one's progress. That is regression. It is not a motivation problem. It is an architecture problem. Eleven months, twenty nine domains, video, music, lip sync, marketing, and no shared brain. The agents are not the product. The shared brain and the rules are the product.
+
+Part three. Platforms, one by one, for your real problem.
+Memory layer. Mem zero, sixty six thousand stars. Drop in memory for agents. Letta, formerly MemGPT, twenty five thousand stars. Stateful agents with long term memory. Cognee, thirty one thousand stars. Open source memory graph for agents. Zep, five thousand stars. Fast memory for assistants. Any one of these ends the no memory problem. My pick for you, start with mem zero or letta.
+
+Behaviour and rules. The fix is a single AGENTS dot M D file at the root of every repo. One file. All agents read it first. It is an emerging open standard. This is the cheapest, fastest way to force uniform behaviour across Claude, Cursor, Codex, and the rest.
+
+Orchestration. LangGraph, forty three thousand stars. Resilient stateful graphs. CrewAI, fifty nine thousand. Role based crews. AutoGen, sixty one thousand. These give you one orchestrator so agents stop freelancing.
+
+Part four. The permanent fix. Four layers.
+Layer one, one rules file. AGENTS dot M D. Golden rules, allowed actions, forbidden actions.
+Layer two, one memory store. Every task writes what it learned. Every agent reads it before it acts.
+Layer three, one orchestrator. One entry point. Sub agents cannot merge or deploy without it.
+Layer four, one regression gate. Every change must pass tests before it is accepted. If it fails, it never lands.
+
+If all four exist, regression becomes mechanically impossible. Not willpower. Mechanism.
+
+Part five. Your five questions. Answer in a few words each. One. Name the single repository or product that must ship first. Two. Which agent tools do you actually use today. Three. Do you already have a memory store, and where. Four. What does done look like for the first product. Five. Can I have write access to the first repository, yes or no.
+
+End of briefing. Reply with your five short answers, and I will build the rules file, the memory store, and the regression gate immediately.
