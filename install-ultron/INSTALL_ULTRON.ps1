@@ -57,6 +57,13 @@ New-Item -ItemType Directory -Force -Path "$DataDir\memory" | Out-Null
 if (Test-Path "$Dest\mo_golden_rules.json") { Copy-Item "$Dest\mo_golden_rules.json" "$DataDir\config\learned_rules.json" -Force }
 if (-not (Test-Path "$DataDir\memory\MEMORY.md")) { "date | agent | change | why | next" | Out-File "$DataDir\memory\MEMORY.md" -Encoding utf8 }
 
+# 5b. Fetch ULTRON extras (bridge, autostart, docs) from the control repo
+$Base = "https://raw.githubusercontent.com/mirzaadin-crypto/awesome-best-open-source-ai-agents-2026/cline/t22a7p34/install-ultron"
+New-Item -ItemType Directory -Force -Path "$Dest\install-ultron" | Out-Null
+foreach ($f in @("ultron_telegram_bridge.py","install_boot_autostart.ps1","start_telegram_bridge.bat","TELEGRAM_SETUP.md")) {
+    try { Invoke-WebRequest "$Base/$f" -OutFile "$Dest\install-ultron\$f" -UseBasicParsing; Log "  + $f" } catch { Write-Host "  ! could not fetch $f" -ForegroundColor Yellow }
+}
+
 # 6. Regression gate
 Log "Running regression gate..."
 & $VP -m compileall -q "$Dest"
@@ -68,8 +75,15 @@ $ws = New-Object -ComObject WScript.Shell
 $s = $ws.CreateShortcut($lnk)
 $s.TargetPath = $VP; $s.Arguments = "main.py --startup"; $s.WorkingDirectory = $Dest; $s.Save()
 
+# 7b. If a bot token is configured, enable boot auto-start now
+if ([Environment]::GetEnvironmentVariable("TELEGRAM_BOT_TOKEN","User")) {
+    try {
+        & "$Dest\install-ultron\install_boot_autostart.ps1" -Dest $Dest
+        Log "Telegram bridge auto-start enabled."
+    } catch { Write-Host "  ! autostart setup skipped: $_" -ForegroundColor Yellow }
+}
+
 Write-Host ""
-Write-Host "  ULTRON INSTALLED  ->  $Dest" -ForegroundColor Green
 Write-Host "  Desktop shortcut created: ULTRON" -ForegroundColor Green
 Write-Host "  Launching now..." -ForegroundColor Yellow
 Start-Process $VP -ArgumentList "main.py --startup" -WorkingDirectory $Dest
