@@ -10,6 +10,10 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+# fix broken temp drive (e.g. missing M:\) before anything builds
+$tmpFix = Join-Path $env:LOCALAPPDATA "Temp"
+New-Item -ItemType Directory -Force -Path $tmpFix | Out-Null
+$env:TEMP = $tmpFix; $env:TMP = $tmpFix
 function Log($m){ Write-Host $m -ForegroundColor Cyan }
 
 Write-Host "==============================================" -ForegroundColor Yellow
@@ -46,23 +50,24 @@ if (-not (Test-Path (Join-Path $Dest "main.py"))) {
 # 2b. Speed: drop .git (kills startup update check)
 Remove-Item "$Dest\.git" -Recurse -Force -ErrorAction SilentlyContinue
 
-# 3. Python (auto-install if missing)
-$Python = $null
-if (Get-Command py -ErrorAction SilentlyContinue) { $Python = "py" }
-elseif (Get-Command python -ErrorAction SilentlyContinue) { $Python = "python" }
-if (-not $Python) {
-    Log "Python not found. Installing Python 3.11.8 (silent)..."
-    $pi = "$env:TEMP\python_installer.exe"
-    Invoke-WebRequest "https://www.python.org/ftp/python/3.11.8/python-3.11.8-amd64.exe" -OutFile $pi
-    Start-Process $pi -ArgumentList "/quiet InstallAllUsers=1 PrependPath=1 Include_test=0" -Wait
-    $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-    $Python = "python"
+# 3. Python - REQUIRE 3.11/3.12 (3.13/3.14 lack wheels for pyaudio etc.)
+$Python = $null; $PyArgs = @()
+if (Get-Command py -ErrorAction SilentlyContinue) {
+    foreach ($v in @("-3.11","-3.12")) { if (py $v --version 2>$null) { $Python="py"; $PyArgs=@($v); break } }
 }
-Log "Python: $Python"
+if (-not $Python) {
+    Log "Installing Python 3.11.9 (silent)..."
+    $pi = "$env:TEMP\py311.exe"
+    Invoke-WebRequest "https://www.python.org/ftp/python/3.11.9/python-3.11.9-amd64.exe" -OutFile $pi
+    Start-Process $pi -ArgumentList "/quiet InstallAllUsers=0 PrependPath=1 Include_test=0" -Wait
+    $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+    $Python = "py"; $PyArgs = @("-3.11")
+}
+Log "Python: $Python $($PyArgs -join ' ')"
 
 # 4. venv + deps
 $VP = "$Dest\.venv\Scripts\python.exe"
-if (-not (Test-Path $VP)) { Log "Creating virtual environment..."; & $Python -m venv .venv }
+if (-not (Test-Path $VP)) { Log "Creating virtual environment..."; & $Python @PyArgs -m venv .venv }
 Log "Installing dependencies (a few minutes)..."
 & $VP -m pip install --upgrade pip setuptools wheel
 & $VP -m pip install -r requirements.txt
