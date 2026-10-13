@@ -43,6 +43,9 @@ if (-not (Test-Path (Join-Path $Dest "main.py"))) {
     if (Test-Path (Join-Path $Dest ".git")) { git -C $Dest pull 2>$null }
 }
 
+# 2b. Speed: drop .git (kills startup update check)
+Remove-Item "$Dest\.git" -Recurse -Force -ErrorAction SilentlyContinue
+
 # 3. Python (auto-install if missing)
 $Python = $null
 if (Get-Command py -ErrorAction SilentlyContinue) { $Python = "py" }
@@ -76,7 +79,7 @@ if (-not (Test-Path "$DataDir\memory\MEMORY.md")) { "date | agent | change | why
 # 5b. Fetch ULTRON extras (bridge, autostart, docs) from the control repo
 $Base = "https://raw.githubusercontent.com/mirzaadin-crypto/awesome-best-open-source-ai-agents-2026/cline/t22a7p34/install-ultron"
 New-Item -ItemType Directory -Force -Path "$Dest\install-ultron" | Out-Null
-foreach ($f in @("agent_telegram_bridge.py","install_boot_autostart.ps1","TELEGRAM_SETUP.md")) {
+foreach ($f in @("agent_telegram_bridge.py","install_boot_autostart.ps1","start_osmos_fast.bat","TELEGRAM_SETUP.md")) {
     try { Invoke-WebRequest "$Base/$f" -OutFile "$Dest\install-ultron\$f" -UseBasicParsing; Log "  + $f" } catch { Write-Host "  ! could not fetch $f" -ForegroundColor Yellow }
 }
 
@@ -86,11 +89,11 @@ Log "Running regression gate..."
 if ($LASTEXITCODE -ne 0) { throw "REGRESSION GATE FAILED. ULTRON not installed." }
 
 # 7. Desktop shortcut + launch
-$lnk = Join-Path ([Environment]::GetFolderPath("Desktop")) "ULTRON.lnk"
+$lnk = Join-Path ([Environment]::GetFolderPath("Desktop")) "OSmOS.lnk"
 $ws = New-Object -ComObject WScript.Shell
 $s = $ws.CreateShortcut($lnk)
 try { Invoke-WebRequest "$Base/ultron.ico" -OutFile "$Dest\ultron.ico" -UseBasicParsing } catch {}
-$s.TargetPath = $VP; $s.Arguments = "main.py --startup"; $s.WorkingDirectory = $Dest
+$s.TargetPath = "$Dest\start_osmos_fast.bat"; $s.WorkingDirectory = $Dest
 if (Test-Path "$Dest\ultron.ico") { $s.IconLocation = "$Dest\ultron.ico,0" }
 $s.Description = "OSmOS"; $s.Save()
 
