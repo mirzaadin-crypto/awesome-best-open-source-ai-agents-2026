@@ -13,6 +13,7 @@ $stamp = Get-Date -Format "yyyyMMdd-HHmmss"
 $Best = @{
     "mobile-mcp"    = @{ command = "npx"; args = @("-y","@mobilenext/mobile-mcp@latest") }
     "tailscale-mcp" = @{ command = "npx"; args = @("-y","@hexsleeves/tailscale-mcp-server") }
+    "desktop-commander" = @{ command = "npx"; args = @("-y","@wonderwhy-er/desktop-commander") }
 }
 
 # Common MCP config locations on Windows
